@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Lora", Georgia, "Times New Roman", serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-paper: #F7F4EF;
+  --color-sheet: #FCFBF8;
+  --color-linen: #EFECE5;
+  --color-linen-deep: #E5E0D6;
+  --color-hairline: #E2DDD3;
+  --color-ink: #231F1B;
+  --color-ink-muted: #6B6258;
+  --color-ink-subtle: #92887D;
+  --color-forest: #2D5A43;
+  --color-forest-hover: #244936;
+  --color-forest-soft: #EBF1ED;
+  --color-ochre: #9F4A2B;
+  --color-ochre-soft: #F7ECE7;
+  --color-walnut: #7A5C38;
+  --color-walnut-soft: #F3EDE3;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+}
+
+/* Subtle paper ruled lines for the active notebook workspace */
+.paper-sheet {
+  background-color: var(--color-sheet);
+}
+
+/* Blinking math cursor */
+@keyframes caret-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.math-caret {
+  animation: caret-blink 1.05s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .math-caret {
+    animation: none;
+  }
+}
+
+/* Clean custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D6CFC3;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #BEB5A6;
+}

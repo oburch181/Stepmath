@@ -1,0 +1,6 @@
+{
+  "name": "Folio",
+  "description": "A minimal, warm-toned mathematics workbook for solving algebra through college math line by line on mobile and desktop.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
