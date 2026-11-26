@@ -15,6 +15,9 @@ import { SectionLecture } from './components/SectionLecture';
 import { SectionTestWorkspace } from './components/SectionTestWorkspace';
 import { ScratchpadWorkspace } from './components/ScratchpadWorkspace';
 import { ProgressView } from './components/ProgressView';
+import { InstallModal } from './components/InstallModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
+import { usePWAInstall } from './hooks/usePWAInstall';
 
 type TopView = 'curriculum' | 'scratchpad' | 'progress';
 type NestedMode = 'browse' | 'lecture' | 'problem' | 'test_out';
@@ -44,6 +47,8 @@ export default function App() {
   const [mastery, setMastery] = useState<MasteryMap>(() =>
     loadJSON<MasteryMap>(MASTERY_STORAGE_KEY, {})
   );
+  const [installOpen, setInstallOpen] = useState(false);
+  const pwa = usePWAInstall();
 
   useEffect(() => {
     try {
@@ -222,7 +227,7 @@ export default function App() {
 
           <nav
             aria-label="Primary"
-            className="flex items-center gap-5 sm:gap-7 text-sm font-medium"
+            className="flex items-center gap-4 sm:gap-7 text-sm font-medium"
           >
             {(
               [
@@ -247,6 +252,15 @@ export default function App() {
                 </button>
               );
             })}
+            {!pwa.isInstalled && (
+              <button
+                type="button"
+                onClick={() => setInstallOpen(true)}
+                className="py-1 transition-colors whitespace-nowrap shrink-0 border-b-[1.5px] border-transparent text-ink-muted hover:text-ink"
+              >
+                Install
+              </button>
+            )}
           </nav>
 
           <div className="shrink-0">
@@ -373,6 +387,18 @@ export default function App() {
           />
         )}
       </main>
+
+      <InstallModal
+        open={installOpen}
+        onClose={() => setInstallOpen(false)}
+        apkUrl={pwa.apkUrl}
+        apkVersion={pwa.apkVersion}
+        isInstallable={pwa.isInstallable}
+        isIOS={pwa.isIOS}
+        onInstallPWA={pwa.installPWA}
+      />
+
+      <OfflineIndicator />
     </div>
   );
 }

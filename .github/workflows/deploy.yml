@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (with Android APK)
 
 on:
   push:
@@ -37,17 +37,55 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Build production bundle
+      - name: Build GitHub Pages PWA bundle
         run: npm run build
         env:
           GITHUB_ACTIONS: true
 
-      - name: Prepare Pages artifacts
+      - name: Build offline bundle for Android APK
+        run: npx vite build --outDir android/app/src/main/assets/www
+        env:
+          VITE_BASE_PATH: "./"
+          VITE_DISABLE_PWA: "true"
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+
+      - name: Decode optional release keystore
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
         run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "${{ runner.temp }}/release.keystore"
+          echo "ANDROID_KEYSTORE_PATH=${{ runner.temp }}/release.keystore" >> "$GITHUB_ENV"
+
+      - name: Build Android APK
+        run: |
+          if [ -n "${ANDROID_KEYSTORE_PATH:-}" ]; then
+            gradle -p android assembleRelease --no-daemon
+            cp android/app/build/outputs/apk/release/app-release.apk dist/folio.apk
+          else
+            gradle -p android assembleDebug --no-daemon
+            cp android/app/build/outputs/apk/debug/app-debug.apk dist/folio.apk
+          fi
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Publish APK metadata and Pages files
+        run: |
+          printf '{"available":true,"file":"folio.apk","version":"1.0.0"}\n' > dist/apk-meta.json
           touch dist/.nojekyll
           cp dist/index.html dist/404.html
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist

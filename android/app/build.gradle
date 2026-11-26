@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace "app.folio.math"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "app.folio.math"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (ksPath != null && !ksPath.isEmpty()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            def ksPath = System.getenv("ANDROID_KEYSTORE_PATH")
+            signingConfig (ksPath != null && !ksPath.isEmpty() ? signingConfigs.release : signingConfigs.debug)
+        }
+        debug {
+            applicationIdSuffix ""
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation "androidx.webkit:webkit:1.12.1"
+}
